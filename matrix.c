@@ -1,28 +1,29 @@
 #include "matrix.h"
 
-static int calculateIndex(const Matrix matrix, const int rowNumber, const int columnNumber)
+static int calculateIndex(const Matrix *matrix, const int rowNumber, const int columnNumber)
 {
-    return rowNumber * matrix.columnCount + columnNumber;
+    return rowNumber * matrix->columnCount + columnNumber;
 }
 
-Matrix createMatrix(const int rowCount, const int columnCount, double data[])
+Matrix *createMatrix(const int rowCount, const int columnCount, double data[])
 {
-    Matrix matrix;
-    matrix.rowCount = rowCount;
-    matrix.columnCount = columnCount;
+    Matrix *matrix = malloc(sizeof(Matrix));
+    matrix->rowCount = rowCount;
+    matrix->columnCount = columnCount;
 
-    matrix.data = malloc(rowCount * columnCount * sizeof(*matrix.data));
-    memcpy(matrix.data, data, rowCount * columnCount * sizeof(*matrix.data));
+    matrix->data = malloc(rowCount * columnCount * sizeof(*matrix->data));
+    memcpy(matrix->data, data, rowCount * columnCount * sizeof(*matrix->data));
 
     return matrix;
 }
 
-void disposeMatrix(Matrix matrix)
+void disposeMatrix(Matrix *matrix)
 {
-    free(matrix.data);
+    free(matrix->data);
+    free(matrix);
 }
 
-Matrix loadMatrixFromFile(const char *fileName)
+Matrix *loadMatrixFromFile(const char *fileName)
 {
     FILE *file = fopen(fileName, "r");
     if (!file)
@@ -45,20 +46,20 @@ Matrix loadMatrixFromFile(const char *fileName)
         exit(EXIT_FAILURE);
     }
 
-    Matrix matrix;
-    matrix.rowCount = rowCount;
-    matrix.columnCount = columnCount;
-    matrix.data = malloc(rowCount * columnCount * sizeof(*matrix.data));
+    Matrix *matrix = malloc(sizeof(Matrix));
+    matrix->rowCount = rowCount;
+    matrix->columnCount = columnCount;
+    matrix->data = malloc(rowCount * columnCount * sizeof(*matrix->data));
 
     for (int column = 0; column < columnCount; column++)
     {
         for (int row = 0; row < rowCount; row++)
         {
             const int index = calculateIndex(matrix, row, column);
-            if (fscanf(file, "%lf", &matrix.data[index]) != 1)
+            if (fscanf(file, "%lf", &matrix->data[index]) != 1)
             {
                 fclose(file);
-                free(matrix.data);
+                free(matrix->data);
                 fprintf(stderr, "Nie udało się wczytać elementu macierzy [%d, %d]\n", row + 1, column + 1);
                 exit(EXIT_FAILURE);
             }
@@ -70,24 +71,24 @@ Matrix loadMatrixFromFile(const char *fileName)
 }
 
 // Indexes are numbered from 0 to n-1
-double getElement(const Matrix matrix, const int rowNumber, const int columnNumber)
+double getElement(const Matrix *matrix, const int rowNumber, const int columnNumber)
 {
     const int index = calculateIndex(matrix, rowNumber, columnNumber);
-    return matrix.data[index];
+    return matrix->data[index];
 }
 
 // Indexes are numbered from 0 to n-1
-void setElement(Matrix matrix, const int rowNumber, const int columnNumber, double value)
+void setElement(Matrix *matrix, const int rowNumber, const int columnNumber, double value)
 {
     const int index = calculateIndex(matrix, rowNumber, columnNumber);
-    matrix.data[index] = value;
+    matrix->data[index] = value;
 }
 
-void fprintMatrix(FILE *file, const Matrix matrix)
+void fprintMatrix(FILE *file, const Matrix *matrix)
 {
-    for (int column = 0; column < matrix.columnCount; column++)
+    for (int column = 0; column < matrix->columnCount; column++)
     {
-        for (int row = 0; row < matrix.rowCount; row++)
+        for (int row = 0; row < matrix->rowCount; row++)
         {
             const double value = getElement(matrix, row, column);
             fprintf(file, "%.4lf   ", value);
@@ -96,7 +97,7 @@ void fprintMatrix(FILE *file, const Matrix matrix)
     }
 }
 
-void printMatrix(const Matrix matrix)
+void printMatrix(const Matrix *matrix)
 {
     fprintMatrix(stdout, matrix);
 }

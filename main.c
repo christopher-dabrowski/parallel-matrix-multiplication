@@ -7,7 +7,7 @@
 
 int main()
 {
-    Matrix matrix = loadMatrixFromFile("A.txt");
+    Matrix *matrix = loadMatrixFromFile("A.txt");
     printMatrix(matrix);
 
     disposeMatrix(matrix);
