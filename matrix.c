@@ -17,6 +17,17 @@ Matrix *createMatrix(const int rowCount, const int columnCount, double data[])
     return matrix;
 }
 
+Matrix *createZerosMatrix(const int rowCount, const int columnCount)
+{
+    Matrix *matrix = malloc(sizeof(Matrix));
+    matrix->rowCount = rowCount;
+    matrix->columnCount = columnCount;
+
+    matrix->data = calloc(rowCount * columnCount, sizeof(*matrix->data));
+
+    return matrix;
+}
+
 void disposeMatrix(Matrix *matrix)
 {
     free(matrix->data);
@@ -51,9 +62,9 @@ Matrix *loadMatrixFromFile(const char *fileName)
     matrix->columnCount = columnCount;
     matrix->data = malloc(rowCount * columnCount * sizeof(*matrix->data));
 
-    for (int column = 0; column < columnCount; column++)
+    for (int row = 0; row < rowCount; row++)
     {
-        for (int row = 0; row < rowCount; row++)
+        for (int column = 0; column < columnCount; column++)
         {
             const int index = calculateIndex(matrix, row, column);
             if (fscanf(file, "%lf", &matrix->data[index]) != 1)
@@ -63,6 +74,11 @@ Matrix *loadMatrixFromFile(const char *fileName)
                 fprintf(stderr, "Nie udało się wczytać elementu macierzy [%d, %d]\n", row + 1, column + 1);
                 exit(EXIT_FAILURE);
             }
+
+#ifdef DEBUG
+            printf("Wczytuję element row: %d column: %d\n", row, column);
+            printf("Indeks wczytanego elemenut: %d\twartość: %lf\n", index, matrix->data[index]);
+#endif
         }
     }
 
@@ -86,12 +102,12 @@ void setElement(Matrix *matrix, const int rowNumber, const int columnNumber, dou
 
 void fprintMatrix(FILE *file, const Matrix *matrix)
 {
-    for (int column = 0; column < matrix->columnCount; column++)
+    for (int row = 0; row < matrix->rowCount; row++)
     {
-        for (int row = 0; row < matrix->rowCount; row++)
+        for (int column = 0; column < matrix->columnCount; column++)
         {
             const double value = getElement(matrix, row, column);
-            fprintf(file, "%.4lf   ", value);
+            fprintf(file, "%6.2lf   ", value);
         }
         fprintf(file, "\n");
     }

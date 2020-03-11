@@ -13,6 +13,9 @@ typedef struct Matrix
 
 Matrix *createMatrix(const int rowCount, const int columnCount, double data[]);
 
+// Create matrix filled with 0
+Matrix *createZerosMatrix(const int rowCount, const int columnCount);
+
 Matrix *loadMatrixFromFile(const char *fileName);
 
 // Clean up resources allocacted for Matrix
