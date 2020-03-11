@@ -1,8 +1,17 @@
 #include "matrix.h"
 
-static int calculateIndex(const Matrix *matrix, const int rowNumber, const int columnNumber)
+int calculateIndex(const Matrix *matrix, const int rowNumber, const int columnNumber)
 {
     return rowNumber * matrix->columnCount + columnNumber;
+}
+
+Pair mapIndexToRowAndColumn(const Matrix *matrix, const int index)
+{
+    Pair result;
+    result.a = index / matrix->columnCount;
+    result.b = index % matrix->columnCount;
+
+    return result;
 }
 
 Matrix *createMatrix(const int rowCount, const int columnCount, double data[])
@@ -75,10 +84,10 @@ Matrix *loadMatrixFromFile(const char *fileName)
                 exit(EXIT_FAILURE);
             }
 
-#ifdef DEBUG
-            printf("Wczytuję element row: %d column: %d\n", row, column);
-            printf("Indeks wczytanego elemenut: %d\twartość: %lf\n", index, matrix->data[index]);
-#endif
+            // #ifdef DEBUG
+            //             printf("Wczytuję element row: %d column: %d\n", row, column);
+            //             printf("Indeks wczytanego elemenut: %d\twartość: %lf\n", index, matrix->data[index]);
+            // #endif
         }
     }
 

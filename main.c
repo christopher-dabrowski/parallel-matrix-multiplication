@@ -5,18 +5,23 @@
 
 #include "matrix.h"
 
+Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB)
+{
+    Matrix *result = createZerosMatrix(matrixA->columnCount, matrixB->rowCount);
+
+    return result;
+}
+
 int main()
 {
-    Matrix *matrix = loadMatrixFromFile("A.txt");
-    printMatrix(matrix);
+    Matrix *matrixA = loadMatrixFromFile("A.txt");
+    printMatrix(matrixA);
     puts("");
 
-    disposeMatrix(matrix);
+    Matrix *matrixB = loadMatrixFromFile("B.txt");
+    printMatrix(matrixB);
 
-    Matrix *zeros = createZerosMatrix(2, 3);
-    setElement(zeros, 0, 2, 10.5);
-    printMatrix(zeros);
-
-    disposeMatrix(zeros);
+    disposeMatrix(matrixA);
+    disposeMatrix(matrixB);
     return EXIT_SUCCESS;
 }
