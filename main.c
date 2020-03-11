@@ -6,6 +6,12 @@
 
 Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB)
 {
+    if (matrixA->columnCount != matrixB->rowCount)
+    {
+        perror("Wymiary macierzy nie pozwalaja na mnożenie\n");
+        return NULL;
+    }
+
     Matrix *result = createZerosMatrix(matrixA->rowCount, matrixB->columnCount);
 
     // We have to calculate values for new array from index 0 to index maxIndex
