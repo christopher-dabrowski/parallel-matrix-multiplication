@@ -10,6 +10,8 @@
 
 typedef struct ThreadArgument
 {
+    const Matrix *matrixA;
+    const Matrix *MatrixB;
     Matrix *resultMatrix;
     Pair indexRange;
 } ThreadArgument;
@@ -17,8 +19,30 @@ typedef struct ThreadArgument
 void *threadAction(void *args)
 {
     ThreadArgument *arguments = args;
+    Pair indexes = arguments->indexRange;
+    const Matrix *matrixA = arguments->matrixA;
+    const Matrix *matrixB = arguments->MatrixB;
+    Matrix *resultMatrix = arguments->resultMatrix;
 
-    printf("Będę pracował na indeksach [%d, %d)\n", arguments->indexRange.a, arguments->indexRange.b);
+#ifdef DEBUG
+    printf("Będę pracował na indeksach [%d, %d)\n", indexes.a, indexes.b);
+#endif
+    for (int index = indexes.a; index < indexes.b; index++)
+    {
+        Pair rowAndColumn = mapIndexToRowAndColumn(resultMatrix, index);
+        const int row = rowAndColumn.a;
+        const int column = rowAndColumn.b;
+
+        double sum = 0.;
+        for (int i = 0; i < matrixA->columnCount; i++)
+        {
+            double a = getElement(matrixA, row, i);
+            double b = getElement(matrixB, i, column);
+            sum += a * b;
+        }
+
+        setElement(resultMatrix, row, column, sum);
+    }
 
     return NULL;
 }
@@ -43,8 +67,10 @@ Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB, const int threadC
 
     for (int i = 0; i < threadCount; i++)
     {
-        threadArguments[i].resultMatrix = result;
         threadArguments[i].indexRange = ranges[i];
+        threadArguments[i].matrixA = matrixA;
+        threadArguments[i].MatrixB = matrixB;
+        threadArguments[i].resultMatrix = result;
 
         if (pthread_create(&threads[i], NULL, threadAction, &threadArguments[i]))
         {
@@ -61,23 +87,6 @@ Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB, const int threadC
             exit(EXIT_FAILURE);
         }
     }
-
-    // for (int index = 0; index < maxIndex; index++)
-    // {
-    //     Pair rowAndColumn = mapIndexToRowAndColumn(result, index);
-    //     const int row = rowAndColumn.a;
-    //     const int column = rowAndColumn.b;
-
-    //     double sum = 0.;
-    //     for (int i = 0; i < matrixA->columnCount; i++)
-    //     {
-    //         double a = getElement(matrixA, row, i);
-    //         double b = getElement(matrixB, i, column);
-    //         sum += a * b;
-    //     }
-
-    //     setElement(result, row, column, sum);
-    // }
 
     free(ranges);
     return result;
