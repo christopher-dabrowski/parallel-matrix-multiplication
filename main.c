@@ -5,8 +5,25 @@
 #include <pthread.h>
 #include <time.h>
 #include "matrix.h"
+#include "pair.h"
+#include "utils.h"
 
-Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB)
+typedef struct ThreadArgument
+{
+    Matrix *resultMatrix;
+    Pair indexRange;
+} ThreadArgument;
+
+void *threadAction(void *args)
+{
+    ThreadArgument *arguments = args;
+
+    printf("Będę pracował na indeksach [%d, %d)\n", arguments->indexRange.a, arguments->indexRange.b);
+
+    return NULL;
+}
+
+Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB, const int threadCount)
 {
     if (matrixA->columnCount != matrixB->rowCount)
     {
@@ -20,79 +37,68 @@ Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB)
     // We can view matrix as flat array of indexes which can be splited into ranges and calculated separtatly
     const int maxIndex = result->columnCount * result->rowCount;
 
-    for (int index = 0; index < maxIndex; index++)
-    {
-        Pair rowAndColumn = mapIndexToRowAndColumn(result, index);
-        const int row = rowAndColumn.a;
-        const int column = rowAndColumn.b;
+    Pair *ranges = splitIntoRanges(maxIndex, threadCount);
+    pthread_t threads[threadCount];
+    ThreadArgument threadArguments[threadCount];
 
-        double sum = 0.;
-        for (int i = 0; i < matrixA->columnCount; i++)
+    for (int i = 0; i < threadCount; i++)
+    {
+        threadArguments[i].resultMatrix = result;
+        threadArguments[i].indexRange = ranges[i];
+
+        if (pthread_create(&threads[i], NULL, threadAction, &threadArguments[i]))
         {
-            double a = getElement(matrixA, row, i);
-            double b = getElement(matrixB, i, column);
-            sum += a * b;
+            perror("Nie udało się utworzyć wątku\n");
+            exit(EXIT_FAILURE);
         }
-
-        setElement(result, row, column, sum);
     }
 
-    return result;
-}
-
-void *threadAction(void *args)
-{
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < threadCount; i++)
     {
-        struct timespec waitTime;
-        waitTime.tv_sec = (double)5 * ((double)rand() / RAND_MAX);
-
-        printf("I'm THREAD and I say %d\n", i);
-        printf("Now I'll sleep for %ld seconds\n", waitTime.tv_sec);
-
-        nanosleep(&waitTime, &waitTime);
+        if (pthread_join(threads[i], NULL))
+        {
+            perror("Nie udało się dołączyć wątku\n");
+            exit(EXIT_FAILURE);
+        }
     }
 
-    return NULL;
+    // for (int index = 0; index < maxIndex; index++)
+    // {
+    //     Pair rowAndColumn = mapIndexToRowAndColumn(result, index);
+    //     const int row = rowAndColumn.a;
+    //     const int column = rowAndColumn.b;
+
+    //     double sum = 0.;
+    //     for (int i = 0; i < matrixA->columnCount; i++)
+    //     {
+    //         double a = getElement(matrixA, row, i);
+    //         double b = getElement(matrixB, i, column);
+    //         sum += a * b;
+    //     }
+
+    //     setElement(result, row, column, sum);
+    // }
+
+    free(ranges);
+    return result;
 }
 
 int main()
 {
-    srand(time(NULL));
-    pthread_t thread;
 
-    if (pthread_create(&thread, NULL, threadAction, NULL))
-    {
-        perror("Nie udało się utworzyć wątku\n");
-        exit(EXIT_FAILURE);
-    }
+    Matrix *matrixA = loadMatrixFromFile("A.txt");
+    printMatrix(matrixA);
+    puts("");
 
-    for (int i = 0; i < 10; i++)
-    {
-        struct timespec waitTime;
-        waitTime.tv_sec = (double)5 * ((double)rand() / RAND_MAX);
+    Matrix *matrixB = loadMatrixFromFile("B.txt");
+    printMatrix(matrixB);
+    puts("");
 
-        printf("I'm MAIN and I say %d\n", i);
-        printf("Now I'll sleep for %ld seconds\n", waitTime.tv_sec);
+    Matrix *matrixC = multiply(matrixA, matrixB, 3);
+    printMatrix(matrixC);
 
-        nanosleep(&waitTime, &waitTime);
-    }
-
-    pthread_join(thread, NULL);
-
-    // Matrix *matrixA = loadMatrixFromFile("A.txt");
-    // printMatrix(matrixA);
-    // puts("");
-
-    // Matrix *matrixB = loadMatrixFromFile("B.txt");
-    // printMatrix(matrixB);
-    // puts("");
-
-    // Matrix *matrixC = multiply(matrixA, matrixB);
-    // printMatrix(matrixC);
-
-    // disposeMatrix(matrixA);
-    // disposeMatrix(matrixB);
-    // disposeMatrix(matrixC);
+    disposeMatrix(matrixA);
+    disposeMatrix(matrixB);
+    disposeMatrix(matrixC);
     return EXIT_SUCCESS;
 }
