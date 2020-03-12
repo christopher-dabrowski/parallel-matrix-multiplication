@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <pthread.h>
+#include <time.h>
 #include "matrix.h"
 
 Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB)
@@ -38,21 +40,59 @@ Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB)
     return result;
 }
 
+void *threadAction(void *args)
+{
+    for (int i = 0; i < 10; i++)
+    {
+        struct timespec waitTime;
+        waitTime.tv_sec = (double)5 * ((double)rand() / RAND_MAX);
+
+        printf("I'm THREAD and I say %d\n", i);
+        printf("Now I'll sleep for %ld seconds\n", waitTime.tv_sec);
+
+        nanosleep(&waitTime, &waitTime);
+    }
+
+    return NULL;
+}
+
 int main()
 {
-    Matrix *matrixA = loadMatrixFromFile("A.txt");
-    printMatrix(matrixA);
-    puts("");
+    srand(time(NULL));
+    pthread_t thread;
 
-    Matrix *matrixB = loadMatrixFromFile("B.txt");
-    printMatrix(matrixB);
-    puts("");
+    if (pthread_create(&thread, NULL, threadAction, NULL))
+    {
+        perror("Nie udało się utworzyć wątku\n");
+        exit(EXIT_FAILURE);
+    }
 
-    Matrix *matrixC = multiply(matrixA, matrixB);
-    printMatrix(matrixC);
+    for (int i = 0; i < 10; i++)
+    {
+        struct timespec waitTime;
+        waitTime.tv_sec = (double)5 * ((double)rand() / RAND_MAX);
 
-    disposeMatrix(matrixA);
-    disposeMatrix(matrixB);
-    disposeMatrix(matrixC);
+        printf("I'm MAIN and I say %d\n", i);
+        printf("Now I'll sleep for %ld seconds\n", waitTime.tv_sec);
+
+        nanosleep(&waitTime, &waitTime);
+    }
+
+    pthread_join(thread, NULL);
+
+    // Matrix *matrixA = loadMatrixFromFile("A.txt");
+    // printMatrix(matrixA);
+    // puts("");
+
+    // Matrix *matrixB = loadMatrixFromFile("B.txt");
+    // printMatrix(matrixB);
+    // puts("");
+
+    // Matrix *matrixC = multiply(matrixA, matrixB);
+    // printMatrix(matrixC);
+
+    // disposeMatrix(matrixA);
+    // disposeMatrix(matrixB);
+    // disposeMatrix(matrixC);
     return EXIT_SUCCESS;
 }
