@@ -1,3 +1,5 @@
+#pragma once
+
 // Simple struct for storing pari of numbers
 typedef struct Pair
 {
