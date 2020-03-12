@@ -4,7 +4,7 @@ ReleseFlags=-Ofast -std=c11 -g0 -Wno-everything
 
 ## Here add names of modules (.h, .c) files that should be compiled (with .o extension)
 # It is assumed that each one has .h and .c file
-Objects=matrix.o
+Objects=matrix.o utils.o
 
 NAME=matrixOperations
 
