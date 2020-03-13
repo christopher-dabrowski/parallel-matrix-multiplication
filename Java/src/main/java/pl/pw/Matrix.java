@@ -1,8 +1,15 @@
 package pl.pw;
 
+import lombok.Cleanup;
 import lombok.Getter;
 import lombok.val;
 import org.javatuples.Pair;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.IllegalFormatException;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 public class Matrix<T extends Number>  {
     @Getter
@@ -20,6 +27,27 @@ public class Matrix<T extends Number>  {
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         this.data = data;
+    }
+
+    public static Matrix<Double> loadFromFile(final String fileName) throws FileNotFoundException, InvalidFileFormatException {
+        val file = new File(fileName);
+        @Cleanup val scanner = new Scanner(file);
+
+        try {
+            final int rowCount = scanner.nextInt();
+            final int columnCount = scanner.nextInt();
+            val matrix = new Matrix<Double>(rowCount, columnCount, new Double[rowCount * columnCount]);
+
+            for (int row = 0; row < rowCount; row++) {
+                for (int column = 0; column < columnCount; column++) {
+                    matrix.data[matrix.calculateIndex(row, column)] = scanner.nextDouble();
+                }
+            }
+
+            return matrix;
+        } catch (NoSuchElementException e) {
+            throw new InvalidFileFormatException("Matrix file format is invalid");
+        }
     }
 
     // Row and column numbers start from 0
@@ -54,5 +82,11 @@ public class Matrix<T extends Number>  {
         }
 
         return resultBuilder.toString();
+    }
+
+    public static class InvalidFileFormatException extends Exception {
+        public InvalidFileFormatException(String errorMessage) {
+            super(errorMessage);
+        }
     }
 }
