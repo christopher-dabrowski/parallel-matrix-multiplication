@@ -8,6 +8,9 @@
 #include "pair.h"
 #include "utils.h"
 
+double globalSum = 0;
+pthread_mutex_t sumMutex = PTHREAD_MUTEX_INITIALIZER;
+
 typedef struct ThreadArgument
 {
     const Matrix *matrixA;
@@ -42,6 +45,10 @@ void *threadAction(void *args)
         }
 
         setElement(resultMatrix, row, column, sum);
+
+        pthread_mutex_lock(&sumMutex);
+        globalSum += sum;
+        pthread_mutex_unlock(&sumMutex);
     }
 
     return NULL;
@@ -65,6 +72,7 @@ Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB, const int threadC
     pthread_t threads[threadCount];
     ThreadArgument threadArguments[threadCount];
 
+    // Lunch treads
     for (int i = 0; i < threadCount; i++)
     {
         threadArguments[i].indexRange = ranges[i];
@@ -79,6 +87,7 @@ Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB, const int threadC
         }
     }
 
+    // Wait for threads to finish
     for (int i = 0; i < threadCount; i++)
     {
         if (pthread_join(threads[i], NULL))
@@ -105,6 +114,8 @@ int main()
 
     Matrix *matrixC = multiply(matrixA, matrixB, 3);
     printMatrix(matrixC);
+
+    printf("\nSuma elementów macierzy wynikowej: %lf\n", globalSum);
 
     disposeMatrix(matrixA);
     disposeMatrix(matrixB);
