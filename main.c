@@ -8,15 +8,14 @@
 #include "pair.h"
 #include "utils.h"
 
-double globalSum = 0;
-pthread_mutex_t sumMutex = PTHREAD_MUTEX_INITIALIZER;
-
 typedef struct ThreadArgument
 {
     const Matrix *matrixA;
     const Matrix *MatrixB;
     Matrix *resultMatrix;
     Pair indexRange;
+    double *sumOut;
+    pthread_mutex_t *sumMutex;
 } ThreadArgument;
 
 void *threadAction(void *args)
@@ -26,6 +25,8 @@ void *threadAction(void *args)
     const Matrix *matrixA = arguments->matrixA;
     const Matrix *matrixB = arguments->MatrixB;
     Matrix *resultMatrix = arguments->resultMatrix;
+    double *sumOut = arguments->sumOut;
+    pthread_mutex_t *sumMutex = arguments->sumMutex;
 
 #ifdef DEBUG
     printf("Będę pracował na indeksach [%d, %d)\n", indexes.a, indexes.b);
@@ -46,15 +47,18 @@ void *threadAction(void *args)
 
         setElement(resultMatrix, row, column, sum);
 
-        pthread_mutex_lock(&sumMutex);
-        globalSum += sum;
-        pthread_mutex_unlock(&sumMutex);
+        if (sumOut)
+        {
+            pthread_mutex_lock(sumMutex);
+            *sumOut += sum;
+            pthread_mutex_unlock(sumMutex);
+        }
     }
 
     return NULL;
 }
 
-Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB, const int threadCount)
+Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB, const int threadCount, double *elementSumOut)
 {
     if (matrixA->columnCount != matrixB->rowCount)
     {
@@ -63,6 +67,9 @@ Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB, const int threadC
     }
 
     Matrix *result = createZerosMatrix(matrixA->rowCount, matrixB->columnCount);
+    if (elementSumOut)
+        *elementSumOut = 0.;
+    pthread_mutex_t sumMutex = PTHREAD_MUTEX_INITIALIZER;
 
     // We have to calculate values for new array from index 0 to index maxIndex
     // We can view matrix as flat array of indexes which can be splited into ranges and calculated separtatly
@@ -79,6 +86,8 @@ Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB, const int threadC
         threadArguments[i].matrixA = matrixA;
         threadArguments[i].MatrixB = matrixB;
         threadArguments[i].resultMatrix = result;
+        threadArguments[i].sumOut = elementSumOut;
+        threadArguments[i].sumMutex = &sumMutex;
 
         if (pthread_create(&threads[i], NULL, threadAction, &threadArguments[i]))
         {
@@ -112,10 +121,11 @@ int main()
     printMatrix(matrixB);
     puts("");
 
-    Matrix *matrixC = multiply(matrixA, matrixB, 3);
-    printMatrix(matrixC);
+    double elementsSum;
+    Matrix *matrixC = multiply(matrixA, matrixB, 3, &elementsSum);
 
-    printf("\nSuma elementów macierzy wynikowej: %lf\n", globalSum);
+    printMatrix(matrixC);
+    printf("\nSuma elementów macierzy wynikowej: %lf\n", elementsSum);
 
     disposeMatrix(matrixA);
     disposeMatrix(matrixB);
