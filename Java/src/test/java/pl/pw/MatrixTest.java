@@ -34,4 +34,28 @@ public class MatrixTest {
         assertEquals(1, row);
         assertEquals(1, column);
     }
+
+    @Test
+    public void getElement() {
+        // Given
+        val matrix = new Matrix<Double>(2, 3, new Double[]{2., 1., 3., -1., 4., 0.});
+
+        // When
+        double selected = matrix.getElement(0, 2);
+
+        // Then
+        assertEquals(3., selected, 1e-5);
+    }
+
+    @Test
+    public void setElement() {
+        // Given
+        val matrix = new Matrix<Double>(2, 3, new Double[]{2., 1., 3., -1., 4., 0.});
+
+        // When
+        matrix.setElement(0, 1, 42.);
+
+        // Then
+        assertEquals(42., matrix.getElement(0, 1), 1e-5);
+    }
 }

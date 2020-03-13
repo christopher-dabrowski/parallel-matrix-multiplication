@@ -32,9 +32,13 @@ public class Matrix<T extends Number>  {
         return Pair.with(index / this.columnCount, index % this.columnCount);
     }
 
-//    public T getElement(final int row, final int columnCount) {
-////        return
-//    }
+    public T getElement(final int row, final int column) {
+        return data[calculateIndex(row, column)];
+    }
+
+    public void setElement(final int row, final int column, T value) {
+        data[calculateIndex(row, column)] = value;
+    }
 
 //    @Override
 //    public String toString()
