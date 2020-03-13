@@ -29,6 +29,10 @@ public class Matrix<T extends Number>  {
         this.data = data;
     }
 
+    public static Matrix<Double> zeros(final int rowCount, final int columnCount) {
+        return new Matrix<Double>(rowCount, columnCount, new Double[rowCount * columnCount]);
+    }
+
     public static Matrix<Double> loadFromFile(final String fileName) throws FileNotFoundException, InvalidFileFormatException {
         val file = new File(fileName);
         @Cleanup val scanner = new Scanner(file);
