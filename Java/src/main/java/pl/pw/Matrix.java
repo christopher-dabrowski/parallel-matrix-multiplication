@@ -40,17 +40,19 @@ public class Matrix<T extends Number>  {
         data[calculateIndex(row, column)] = value;
     }
 
-//    @Override
-//    public String toString()
-//    {
-//        val resultBuilder = new StringBuilder();
-//
-//        for (int row = 0; row < this.rowCount; row++) {
-//            for (int column = 0; column < columnCount; column++) {
-////                resultBuilder.append()
-//            }
-//        }
-//
-//        return "WIP";
-//    }
+    @Override
+    public String toString()
+    {
+        val resultBuilder = new StringBuilder();
+
+        for (int row = 0; row < this.rowCount; row++) {
+            for (int column = 0; column < columnCount; column++) {
+                double value = this.data[calculateIndex(row, column)].doubleValue();
+                resultBuilder.append(String.format("%6.2f   ", value));
+            }
+            resultBuilder.append('\n');
+        }
+
+        return resultBuilder.toString();
+    }
 }

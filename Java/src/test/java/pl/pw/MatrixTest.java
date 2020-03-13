@@ -58,4 +58,21 @@ public class MatrixTest {
         // Then
         assertEquals(42., matrix.getElement(0, 1), 1e-5);
     }
+
+    @Test
+    public void toStringTest() {
+        // Given
+        val matrix = new Matrix<Double>(2, 3, new Double[]{2., 1., 3., -1., 4., 0.});
+
+        // When
+        val string = matrix.toString();
+
+        // Then
+        val expected = "  2.00     1.00     3.00   \n" +
+                       " -1.00     4.00     0.00   \n";
+        assertEquals(expected, string);
+
+
+    }
+
 }
