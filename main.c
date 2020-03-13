@@ -58,7 +58,7 @@ void *threadAction(void *args)
     return NULL;
 }
 
-Matrix *multiply(const Matrix *matrixA, const Matrix *matrixB, const int threadCount, double *elementSumOut)
+Matrix *multiplyAndSum(const Matrix *matrixA, const Matrix *matrixB, const int threadCount, double *elementSumOut)
 {
     if (matrixA->columnCount != matrixB->rowCount)
     {
@@ -122,7 +122,7 @@ int main()
     puts("");
 
     double elementsSum;
-    Matrix *matrixC = multiply(matrixA, matrixB, 3, &elementsSum);
+    Matrix *matrixC = multiplyAndSum(matrixA, matrixB, 3, &elementsSum);
 
     printMatrix(matrixC);
     printf("\nSuma elementów macierzy wynikowej: %lf\n", elementsSum);
