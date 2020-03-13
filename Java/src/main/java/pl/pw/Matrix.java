@@ -2,6 +2,7 @@ package pl.pw;
 
 import lombok.Getter;
 import lombok.val;
+import org.javatuples.Pair;
 
 public class Matrix<T extends Number>  {
     @Getter
@@ -25,6 +26,10 @@ public class Matrix<T extends Number>  {
     public int calculateIndex(final int row, final int column)
     {
         return row * this.columnCount + column;
+    }
+
+    public Pair<Integer, Integer> mapIndexToRowAndColumn(final int index) {
+        return Pair.with(index / this.columnCount, index % this.columnCount);
     }
 
 //    public T getElement(final int row, final int columnCount) {
