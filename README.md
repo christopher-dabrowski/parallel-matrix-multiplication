@@ -12,6 +12,9 @@ Nauka wykorzystania wielu wątków w programie na przykładzie podstawowych oper
   - [Rozwiązanie zadania](#rozwiązanie-zadania)
     - [Implementacja w C](#implementacja-w-c)
       - [Uruchomienie](#uruchomienie)
+    - [Implementacja w Javie](#implementacja-w-javie)
+      - [Uruchomienie](#uruchomienie-1)
+      - [Testy](#testy)
 
 ## Cel zadania
 
@@ -62,3 +65,23 @@ Do budowy programu można wykorzystać narzędzie _makefile_ i cel _release_, kt
 ./make #Budowa programu
 ./matrixOperations #Uruchomienie programu
 ```
+
+### Implementacja w Javie
+
+W celu ułatwienia obsługi programu nie przyjmuje on argumentów. Po uruchomieniu wczytuje macierze z plików _A.txt_ oraz _B.txt_. Następnie oblicza macierz wynikową oraz sumę elementów. Program wypisuje macierz wynikową oraz sumę jej elementów na standardowe wyjście.
+
+Program używa bibliotek _javatuples_ w celu użycia generycznych krotek oraz _apache.commons_ do mutowalnego typu `Double`.
+
+#### Uruchomienie
+
+Projekt został zbudowany przy pomocy narzędzia _gradle_.
+
+Na potrzebę łatwego uruchomienie zostało dodane zadanie _run_.
+
+```bash
+./gradlew run # Kompilacja, pobranie zależności i uruchomienie programu
+```
+
+#### Testy
+
+Do niektórych metod zostały napisane testy jednostkowe. Znajdują się one w katalogu `scr/tests/java/pl.wp`.
