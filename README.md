@@ -2,6 +2,17 @@
 
 Nauka wykorzystania wielu wątków w programie na przykładzie podstawowych operacji macierzowych.
 
+## Spis treści
+
+- [Programowanie wielowątkowe](#programowanie-wielowątkowe)
+  - [Spis treści](#spis-treści)
+  - [Cel zadania](#cel-zadania)
+  - [Przebieg działania programu](#przebieg-działania-programu)
+  - [Kryteria](#kryteria)
+  - [Rozwiązanie zadania](#rozwiązanie-zadania)
+    - [Implementacja w C](#implementacja-w-c)
+      - [Uruchomienie](#uruchomienie)
+
 ## Cel zadania
 
 Napisać program, który:
@@ -27,3 +38,24 @@ Program wczytuje z plików dwie macierze, a następnie wykonuje ich mnożenie. M
 
 W ramach zaliczenia proszę napisać **dwa programy** realizujące powyższe zadanie.  
 Jeden w języku C wykorzystujący wątki POSIX (pthread) a drugi w języku Java lub Python.
+
+## Rozwiązanie zadania
+
+Przygotowałem dwa programy realizujące równoległe mnożenie macierzy i jednoczesne sumowanie elementów macierzy wynikowej. Jedna implementacja jest napisana w C a druga w Javie.
+
+### Implementacja w C
+
+W celu ułatwienia obsługi programu nie przyjmuje on argumentów. Po uruchomieniu wczytuje macierze z plików _A.txt_ oraz _B.txt_. Następnie oblicza macierz wynikową oraz sumę elementów. Program wypisuje macierze A, B i macierz wynikową oraz sumę jej elementów na standardowe wyjście.
+
+Program korzysta z wątków ze standardu POSIX.
+
+#### Uruchomienie
+
+Program wymaga bibliotek systemowych dostępnych na systemach Linux i Unix. **Nie będzie działać na systemie Windows**.
+
+Do budowy programu można wykorzystać narzędzie _makefile_ i cel _release_, który jest celem domyślnym. W tym celu należy przejść do katalogu C i uruchomić następujące komendy.
+
+```bash
+./make #Budowa programu
+./matrixOperations #Uruchomienie programu
+```
