@@ -1,6 +1,5 @@
 package pl.pw;
 
-import jdk.internal.jline.internal.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import lombok.var;
@@ -53,7 +52,7 @@ public class Main {
     }
 
     public static Matrix<Double> multiplyAndSum(Matrix matrixA, Matrix matrixB, final int threadCount,
-                                                final @Nullable MutableDouble elementsSumOut)
+                                                final MutableDouble elementsSumOut)
             throws InterruptedException {
         if (matrixA.getColumnCount() != matrixB.getRowCount())
             throw new IllegalArgumentException("Matrix dimensions doesn't match");
@@ -80,9 +79,6 @@ public class Main {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        var test = "Hi";
-        System.out.println("Hi Gradle. Lest's do matrix multiplication");
-
         try {
             val matrixA = Matrix.loadFromFile("A.txt");
             val matrixB = Matrix.loadFromFile("B.txt");
