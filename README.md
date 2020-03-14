@@ -43,6 +43,9 @@ Jeden w języku C wykorzystujący wątki POSIX (pthread) a drugi w języku Java 
 
 Przygotowałem dwa programy realizujące równoległe mnożenie macierzy i jednoczesne sumowanie elementów macierzy wynikowej. Jedna implementacja jest napisana w C a druga w Javie.
 
+Podczas pisania programów świadomie **zrezygnowałem z użycia zmiennych globalnych**. Łatwiej jest napisać program ze zmiennymi globalnymi. Jednak taki kod jest mniej czytelny i trudniejszy do testowania.  
+Jeśli użycie zmiennych globalnych jest koniecznym elementem zadania to w historii repozytorium są commity, gdzie zastosowane były zmienne globalne do przechowania sumy elementów.
+
 ### Implementacja w C
 
 W celu ułatwienia obsługi programu nie przyjmuje on argumentów. Po uruchomieniu wczytuje macierze z plików _A.txt_ oraz _B.txt_. Następnie oblicza macierz wynikową oraz sumę elementów. Program wypisuje macierze A, B i macierz wynikową oraz sumę jej elementów na standardowe wyjście.
