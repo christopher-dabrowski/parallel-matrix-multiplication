@@ -8,7 +8,7 @@
 #include "pair.h"
 #include "utils.h"
 
-typedef struct ThreadArgument
+typedef struct MultiplicationThreadArgument
 {
     const Matrix *matrixA;
     const Matrix *MatrixB;
@@ -16,11 +16,11 @@ typedef struct ThreadArgument
     Pair indexRange;
     double *sumOut;
     pthread_mutex_t *sumMutex;
-} ThreadArgument;
+} MultiplicationThreadArgument;
 
-void *threadAction(void *args)
+void *multiplicationThreadAction(void *args)
 {
-    ThreadArgument *arguments = args;
+    MultiplicationThreadArgument *arguments = args;
     Pair indexes = arguments->indexRange;
     const Matrix *matrixA = arguments->matrixA;
     const Matrix *matrixB = arguments->MatrixB;
@@ -77,9 +77,9 @@ Matrix *multiplyAndSum(const Matrix *matrixA, const Matrix *matrixB, const int t
 
     Pair *ranges = splitIntoRanges(maxIndex, threadCount);
     pthread_t threads[threadCount];
-    ThreadArgument threadArguments[threadCount];
+    MultiplicationThreadArgument threadArguments[threadCount];
 
-    // Lunch treads
+    // Launch treads
     for (int i = 0; i < threadCount; i++)
     {
         threadArguments[i].indexRange = ranges[i];
@@ -89,7 +89,7 @@ Matrix *multiplyAndSum(const Matrix *matrixA, const Matrix *matrixB, const int t
         threadArguments[i].sumOut = elementSumOut;
         threadArguments[i].sumMutex = &sumMutex;
 
-        if (pthread_create(&threads[i], NULL, threadAction, &threadArguments[i]))
+        if (pthread_create(&threads[i], NULL, multiplicationThreadAction, &threadArguments[i]))
         {
             perror("Nie udało się utworzyć wątku\n");
             exit(EXIT_FAILURE);
@@ -110,6 +110,82 @@ Matrix *multiplyAndSum(const Matrix *matrixA, const Matrix *matrixB, const int t
     return result;
 }
 
+typedef struct squareAndSumThreadArguments
+{
+    const Matrix *matrix;
+    int thradId;
+    Pair indexRange;
+    double *resultsArray;
+} squareAndSumThreadArguments;
+
+void *squareAndSumThreadAction(void *args)
+{
+    squareAndSumThreadArguments *arguments = args;
+    Matrix *matrix = arguments->matrix;
+    int threadId = arguments->thradId;
+    Pair indexRange = arguments->indexRange;
+    double *resultsArray = arguments->resultsArray;
+
+    double sum = 0.;
+    for (int index = indexRange.a; index < indexRange.b; index++)
+    {
+        Pair rowAndColumn = mapIndexToRowAndColumn(matrix, index);
+        const int row = rowAndColumn.a;
+        const int column = rowAndColumn.b;
+
+        double value = getElement(matrix, row, column);
+        sum += value * value;
+    }
+
+    resultsArray[threadId] = sum;
+    return NULL;
+}
+
+double frobieniusNorm(const Matrix *matrix, const int threadCount)
+{
+    double partialSums[threadCount];
+
+    const int maxIndex = matrix->columnCount * matrix->rowCount;
+    Pair *ranges = splitIntoRanges(maxIndex, threadCount);
+
+    pthread_t threads[threadCount];
+    squareAndSumThreadArguments threadArguments[threadCount];
+    // Launch treads
+    for (int i = 0; i < threadCount; i++)
+    {
+        threadArguments[i].matrix = matrix;
+        threadArguments[i].thradId = i;
+        threadArguments[i].indexRange = ranges[i];
+        threadArguments[i].resultsArray = partialSums;
+
+        if (pthread_create(&threads[i], NULL, squareAndSumThreadAction, &threadArguments[i]))
+        {
+            perror("Nie udało się utworzyć wątku\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    // Wait for threads to finish
+    for (int i = 0; i < threadCount; i++)
+    {
+        if (pthread_join(threads[i], NULL))
+        {
+            perror("Nie udało się dołączyć wątku\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    free(ranges);
+
+    // Join partial sums and calculate final value
+    double sum = 0.;
+    for (int i = 0; i < threadCount; i++)
+    {
+        sum += partialSums[i];
+    }
+
+    return sqrt(sum);
+}
+
 int main()
 {
 
@@ -126,6 +202,9 @@ int main()
 
     printMatrix(matrixC);
     printf("\nSuma elementów macierzy wynikowej: %lf\n", elementsSum);
+
+    puts("\nNorma Frobieniusa macierzy A");
+    printf("%lf\n", frobieniusNorm(matrixA, 8));
 
     disposeMatrix(matrixA);
     disposeMatrix(matrixB);
