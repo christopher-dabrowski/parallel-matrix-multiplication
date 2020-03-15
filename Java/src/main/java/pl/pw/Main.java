@@ -8,6 +8,7 @@ import org.javatuples.Pair;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.stream.DoubleStream;
 
 public class Main {
     // Classes directly connected with the task are moved here, knowingly breaking OOP concepts
@@ -78,18 +79,83 @@ public class Main {
         return resultMatrix;
     }
 
+    @AllArgsConstructor
+    public static class SquareAndSumThread implements Runnable {
+        private final Matrix matrix;
+        private final int threadId;
+        private final Pair<Integer, Integer> range;
+        private final double[] outputArray;
+
+        @Override
+        public void run() {
+            double sum = 0.;
+            for (int index = range.getValue0(); index < range.getValue1(); index++) {
+                Pair<Integer, Integer> rowAndColumn = matrix.mapIndexToRowAndColumn(index);
+                final int row = rowAndColumn.getValue0();
+                final int column = rowAndColumn.getValue1();
+
+                double value = matrix.getElement(row, column).doubleValue();
+                sum += value * value;
+            }
+
+            outputArray[threadId] = sum;
+        }
+
+    }
+
+    /**
+     * Calculate Frobenius norm of given matrix
+     *
+     * Each thread will sum a part of the matrix and output result to shared list.
+     */
+    public static double frobeniusNorm(Matrix matrix, final int threadCount) throws InterruptedException {
+        var partialSquareSums = new double[threadCount];
+
+        final int maxIndex = matrix.getRowCount() * matrix.getColumnCount();
+        val ranges = Utils.splitIntoRanges(maxIndex, threadCount);
+
+        val threads = new ArrayList<Thread>(threadCount);
+        for (int i = 0; i < threadCount; i++) {
+            val thread = new Thread(new SquareAndSumThread(matrix, i, ranges.get(i), partialSquareSums));
+            thread.run();
+            threads.add(thread);
+        }
+
+        for (Thread thread : threads) {
+            thread.join();
+        }
+
+        // Join partial sums and calculate final value
+        return Math.sqrt(DoubleStream.of(partialSquareSums).sum());
+    }
+
     public static void main(String[] args) throws InterruptedException {
+        Matrix matrixA, matrixB;
+
         try {
-            val matrixA = Matrix.loadFromFile("A.txt");
-            val matrixB = Matrix.loadFromFile("B.txt");
-
-            val resultsSum = new MutableDouble();
-            val matrixC = multiplyAndSum(matrixA, matrixB, 3, resultsSum);
-
-            System.out.println(matrixC);
-            System.out.println(resultsSum);
+            matrixA = Matrix.loadFromFile("A.txt");
+            matrixB = Matrix.loadFromFile("B.txt");
         } catch (Matrix.InvalidFileFormatException | FileNotFoundException e) {
             System.err.println(e.getMessage());
+            return;
         }
+
+        System.out.println("Macierz A");
+        System.out.println(matrixA);
+
+        System.out.println("Macierz B");
+        System.out.println(matrixB);
+
+        val resultsSum = new MutableDouble();
+        val matrixC = multiplyAndSum(matrixA, matrixB, 3, resultsSum);
+
+        System.out.println("Iloczyn macierzy A * B");
+        System.out.println(matrixC);
+
+        System.out.println("Suma elementów macierzy C");
+        System.out.println(resultsSum);
+
+        System.out.println("\nNorma Frobeniusa macierzy A");
+        System.out.println(frobeniusNorm(matrixA, 8));
     }
 }
