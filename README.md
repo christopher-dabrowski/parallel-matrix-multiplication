@@ -53,7 +53,7 @@ Jeśli użycie zmiennych globalnych jest koniecznym elementem zadania to w histo
 
 W celu ułatwienia obsługi programu nie przyjmuje on argumentów. Po uruchomieniu wczytuje macierze z plików _A.txt_ oraz _B.txt_. Następnie oblicza macierz wynikową oraz sumę elementów. Program wypisuje macierze A, B i macierz wynikową oraz sumę jej elementów na standardowe wyjście.
 
-Następnie program oblicza normę Frobieniusa dla macierzy A i wypisuje ją na standardowe wyjście.
+Następnie program oblicza normę Frobieniusa dla macierzy wynikowej i wypisuje ją na standardowe wyjście.
 
 Program korzysta z wątków ze standardu POSIX.
 
@@ -64,8 +64,8 @@ Program wymaga bibliotek systemowych dostępnych na systemach Linux i Unix. **Ni
 Do budowy programu można wykorzystać narzędzie _makefile_ i cel _release_, który jest celem domyślnym. W tym celu należy przejść do katalogu C i uruchomić następujące komendy.
 
 ```bash
-./make #Budowa programu
-./matrixOperations #Uruchomienie programu
+./make # Budowa programu
+./matrixOperations 4 # Uruchomienie programu dla 4 wątków
 ```
 
 ### Implementacja w Javie
