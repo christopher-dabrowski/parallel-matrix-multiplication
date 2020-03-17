@@ -225,8 +225,8 @@ int main(int argc, char **argv)
     printMatrix(matrixC);
     printf("\nSuma elementów macierzy wynikowej: %lf\n", elementsSum);
 
-    puts("\nNorma Frobieniusa macierzy A");
-    printf("%lf\n", frobieniusNorm(matrixA, threadCount));
+    puts("\nNorma Frobieniusa macierzy wynikowej");
+    printf("%lf\n", frobieniusNorm(matrixC, threadCount));
 
     disposeMatrix(matrixA);
     disposeMatrix(matrixB);
