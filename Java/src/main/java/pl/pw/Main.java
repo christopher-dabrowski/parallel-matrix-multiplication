@@ -8,6 +8,7 @@ import org.javatuples.Pair;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
 public class Main {
@@ -109,7 +110,7 @@ public class Main {
      * Each thread will sum a part of the matrix and output result to shared list.
      */
     public static double frobeniusNorm(Matrix matrix, final int threadCount) throws InterruptedException {
-        var partialSquareSums = new double[threadCount];
+        double[] partialSquareSums = new double[threadCount];
 
         final int maxIndex = matrix.getRowCount() * matrix.getColumnCount();
         val ranges = Utils.splitIntoRanges(maxIndex, threadCount);
@@ -129,9 +130,31 @@ public class Main {
         return Math.sqrt(DoubleStream.of(partialSquareSums).sum());
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        Matrix matrixA, matrixB;
+    public static int getThreadCount(String[] args)
+    {
+        if (args.length <= 0) {
+            int cores = Runtime.getRuntime().availableProcessors();
+            System.out.println(String.format("Nie podano ilości wątków. Program użyje domyślnej wartości: %d\n", cores));
+            return cores;
+        }
 
+        try {
+            int cores = Integer.parseInt(args[0]);
+            if (cores <= 0) throw new NumberFormatException();
+
+            return cores;
+        } catch (NumberFormatException e) {
+            System.err.println("Nieprawidłowa liczba wątków.\nLiczba wątków musi być dodatnią liczbą całkowitą");
+            System.exit(-1);
+        }
+
+        return 1; //Line is never reached
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        final int coreCount = getThreadCount(args);
+
+        Matrix matrixA, matrixB;
         try {
             matrixA = Matrix.loadFromFile("A.txt");
             matrixB = Matrix.loadFromFile("B.txt");
@@ -147,7 +170,7 @@ public class Main {
         System.out.println(matrixB);
 
         val resultsSum = new MutableDouble();
-        val matrixC = multiplyAndSum(matrixA, matrixB, 3, resultsSum);
+        val matrixC = multiplyAndSum(matrixA, matrixB, coreCount, resultsSum);
 
         System.out.println("Iloczyn macierzy A * B");
         System.out.println(matrixC);
@@ -156,6 +179,6 @@ public class Main {
         System.out.println(resultsSum);
 
         System.out.println("\nNorma Frobeniusa macierzy A");
-        System.out.println(frobeniusNorm(matrixA, 8));
+        System.out.println(frobeniusNorm(matrixA, coreCount));
     }
 }
