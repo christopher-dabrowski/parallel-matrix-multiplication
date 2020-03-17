@@ -48,7 +48,7 @@ Matrix *loadMatrixFromFile(const char *fileName)
     FILE *file = fopen(fileName, "r");
     if (!file)
     {
-        perror("Nie udało się otworzyć pliku\n");
+        fputs("Nie udało się otworzyć pliku\n", stderr);
         exit(EXIT_FAILURE);
     }
 
@@ -56,13 +56,13 @@ Matrix *loadMatrixFromFile(const char *fileName)
     if (fscanf(file, "%d", &rowCount) != 1)
     {
         fclose(file);
-        perror("Nie udało się wczytać liczby wierszy\n");
+        fputs("Nie udało się wczytać liczby wierszy\n", stderr);
         exit(EXIT_FAILURE);
     }
     if (fscanf(file, "%d", &columnCount) != 1)
     {
         fclose(file);
-        perror("Nie udało się wczytać liczby kolumn\n");
+        fputs("Nie udało się wczytać liczby kolumn\n", stderr);
         exit(EXIT_FAILURE);
     }
 

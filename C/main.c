@@ -63,7 +63,7 @@ Matrix *multiplyAndSum(const Matrix *matrixA, const Matrix *matrixB, const int t
 {
     if (matrixA->columnCount != matrixB->rowCount)
     {
-        perror("Wymiary macierzy nie pozwalaja na mnożenie\n");
+        fputs("Wymiary macierzy nie pozwalaja na mnożenie\n", stderr);
         return NULL;
     }
 
@@ -92,7 +92,7 @@ Matrix *multiplyAndSum(const Matrix *matrixA, const Matrix *matrixB, const int t
 
         if (pthread_create(&threads[i], NULL, multiplicationThreadAction, &threadArguments[i]))
         {
-            perror("Nie udało się utworzyć wątku\n");
+            fputs("Nie udało się utworzyć wątku\n", stderr);
             exit(EXIT_FAILURE);
         }
     }
@@ -102,7 +102,7 @@ Matrix *multiplyAndSum(const Matrix *matrixA, const Matrix *matrixB, const int t
     {
         if (pthread_join(threads[i], NULL))
         {
-            perror("Nie udało się dołączyć wątku\n");
+            fputs("Nie udało się dołączyć wątku\n", stderr);
             exit(EXIT_FAILURE);
         }
     }
@@ -161,7 +161,7 @@ double frobieniusNorm(const Matrix *matrix, const int threadCount)
 
         if (pthread_create(&threads[i], NULL, squareAndSumThreadAction, &threadArguments[i]))
         {
-            perror("Nie udało się utworzyć wątku\n");
+            fputs("Nie udało się utworzyć wątku\n", stderr);
             exit(EXIT_FAILURE);
         }
     }
@@ -171,7 +171,7 @@ double frobieniusNorm(const Matrix *matrix, const int threadCount)
     {
         if (pthread_join(threads[i], NULL))
         {
-            perror("Nie udało się dołączyć wątku\n");
+            fputs("Nie udało się dołączyć wątku\n", stderr);
             exit(EXIT_FAILURE);
         }
     }
@@ -200,7 +200,7 @@ int getThreadCount(int argc, char **argv)
     const int threadCount = atoi(argv[1]);
     if (threadCount <= 0)
     {
-        fputs("Nieprawidłowa liczba wątków.\nLiczba wątków musi być dodatnią liczbą całkowitą\n", stdout);
+        fputs("Nieprawidłowa liczba wątków.\nLiczba wątków musi być dodatnią liczbą całkowitą\n", stderr);
         exit(EXIT_FAILURE);
     }
 
