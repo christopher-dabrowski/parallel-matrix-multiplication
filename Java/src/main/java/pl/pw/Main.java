@@ -178,7 +178,7 @@ public class Main {
         System.out.println("Suma elementów macierzy C");
         System.out.println(resultsSum);
 
-        System.out.println("\nNorma Frobeniusa macierzy A");
-        System.out.println(frobeniusNorm(matrixA, coreCount));
+        System.out.println("\nNorma Frobeniusa macierzy wynikowej");
+        System.out.println(frobeniusNorm(matrixC, coreCount));
     }
 }
