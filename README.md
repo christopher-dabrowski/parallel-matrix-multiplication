@@ -68,11 +68,13 @@ Do budowy programu można wykorzystać narzędzie _makefile_ i cel _release_, kt
 ./matrixOperations 4 # Uruchomienie programu dla 4 wątków
 ```
 
+W przypadku nie podania liczy wątków program wykorzysta tyle wątków ile jest dostępnych procesorów.
+
 ### Implementacja w Javie
 
 W celu ułatwienia obsługi programu nie przyjmuje on argumentów. Po uruchomieniu wczytuje macierze z plików _A.txt_ oraz _B.txt_. Następnie oblicza macierz wynikową oraz sumę elementów. Program wypisuje macierze A, B i macierz wynikową oraz sumę jej elementów na standardowe wyjście.
 
-Następnie program oblicza normę Frobieniusa dla macierzy A i wypisuje ją na standardowe wyjście.
+Następnie program oblicza normę Frobieniusa dla macierzy wynikowej i wypisuje ją na standardowe wyjście.
 
 Program używa bibliotek _javatuples_ w celu użycia generycznych krotek oraz _apache.commons_ do mutowalnego typu `Double`.
 
@@ -83,8 +85,10 @@ Projekt został zbudowany przy pomocy narzędzia _gradle_.
 Na potrzebę łatwego uruchomienie zostało dodane zadanie _run_.
 
 ```bash
-./gradlew run # Pobranie zależności, kompilacja,  i uruchomienie programu
+./gradlew run 7 # Pobranie zależności, kompilacja i uruchomienie programu dla 7 wątków
 ```
+
+W przypadku nie podania liczy wątków program wykorzysta tyle wątków ile jest dostępnych procesorów.
 
 #### Testy
 
