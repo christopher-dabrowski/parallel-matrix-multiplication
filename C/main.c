@@ -4,6 +4,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <time.h>
+#include <unistd.h>
 #include "matrix.h"
 #include "pair.h"
 #include "utils.h"
@@ -186,8 +187,29 @@ double frobieniusNorm(const Matrix *matrix, const int threadCount)
     return sqrt(sum);
 }
 
-int main()
+int getThreadCount(int argc, char **argv)
 {
+    if (argc <= 1)
+    {
+        const int systemProcessors = sysconf(_SC_NPROCESSORS_ONLN);
+        printf("Nie podano ilości wątków. Program użyje domyślnej wartości: %d\n\n", systemProcessors);
+
+        return systemProcessors;
+    }
+
+    const int threadCount = atoi(argv[1]);
+    if (threadCount <= 0)
+    {
+        fputs("Nieprawidłowa liczba wątków.\nLiczba wątków musi być dodatnią liczbą całkowitą\n", stdout);
+        exit(EXIT_FAILURE);
+    }
+
+    return threadCount;
+}
+
+int main(int argc, char **argv)
+{
+    const int threadCount = getThreadCount(argc, argv);
 
     Matrix *matrixA = loadMatrixFromFile("A.txt");
     printMatrix(matrixA);
@@ -198,13 +220,13 @@ int main()
     puts("");
 
     double elementsSum;
-    Matrix *matrixC = multiplyAndSum(matrixA, matrixB, 3, &elementsSum);
+    Matrix *matrixC = multiplyAndSum(matrixA, matrixB, threadCount, &elementsSum);
 
     printMatrix(matrixC);
     printf("\nSuma elementów macierzy wynikowej: %lf\n", elementsSum);
 
     puts("\nNorma Frobieniusa macierzy A");
-    printf("%lf\n", frobieniusNorm(matrixA, 8));
+    printf("%lf\n", frobieniusNorm(matrixA, threadCount));
 
     disposeMatrix(matrixA);
     disposeMatrix(matrixB);
